@@ -1,0 +1,137 @@
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8;charset=utf-8">
+	<title>HTML5实现图片拖动，旋转，放大，拉伸等特效-Karajan</title>
+		<!--[if IE]><script type="text/javascript" src="canvas_files/excanvas.js"></script><![endif]-->
+		<style type="text/css" media="screen">
+		body 	{ font: 75% "Lucida Grande", "Trebuchet MS", Verdana, sans-serif; }
+		canvas 	{ background-color: transparent; border: 1px solid gray; top: 0; left: 0; position: absolute;}
+		canvas.resize-ne { cursor: ne-resize; }
+		canvas.resize-se { cursor: se-resize; }
+		canvas.resize-sw { cursor: sw-resize; }
+		canvas.resize-nw { cursor: nw-resize; }
+		canvas.move { cursor: move; }
+		canvas.default { cursor: default; }
+		img 	{ display: block; visibility: hidden; position: absolute; top: -1000; left: -1000; }
+		input 	{ margin-left: 20px; }
+		fieldset { width: 280px; float: left; }
+		.fieldset { width: 200px; float: left; }
+		#ft 	{ background-color: #eee; height: 70px; width: 99%; border-top: 1px solid #ccc; padding: 5px; position: absolute; top: 0; left: 0; }
+		#ft span { width: 100%; }
+	</style>
+	<script src="canvas_files/utilitie.js" type="text/javascript" charset="utf-8"></script>
+	<script src="canvas_files/canvasEl.js" type="text/javascript" charset="utf-8"></script>
+	<script src="canvas_files/canvasIm.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" charset="utf-8">
+		var CanvasDemo = function() {
+			var YD = YAHOO.util.Dom;
+			var YE = YAHOO.util.Event;
+			var canvas1;
+			var img = [];
+			return {
+				init: function() {
+					canvas1 = new Canvas.Element();
+					canvas1.init('canvid1',  { width: YD.getViewportWidth() - 5, height: YD.getViewportHeight() - 5 });			
+					img[img.length] = new Canvas.Img('img1', {});
+					img[img.length] = new Canvas.Img('img2', {});
+					img[img.length] = new Canvas.Img('img3', {});
+					img[img.length] = new Canvas.Img('bg', {});
+					img[img.length] = new Canvas.Img('img4', {});
+					img[img.length] = new Canvas.Img('img4', {});
+				
+					// @param array of images ToDo: individual images
+					
+					canvas1.addImage(img[0]);
+					canvas1.addImage(img[1]);
+					canvas1.addImage(img[2]);
+					canvas1.setCanvasBackground(img[3]);
+					canvas1.addImage(img[4]);
+										
+					this.initEvents();
+				},
+				initEvents: function() {
+					YE.on('togglebg','click', this.toggleBg, this, true);
+					YE.on('showcorners','click', this.showCorners, this, true);
+					YE.on('togglenone','click', this.toggleNone, this, true);
+					YE.on('toggleborders','click', this.toggleBorders, this, true);
+					YE.on('togglepolaroid','click', this.togglePolaroid, this, true);
+					YE.on('pngbutton','click', function() { this.convertTo('png') }, this, true);
+					YE.on('jpegbutton','click', function() { this.convertTo('jpeg') }, this, true);
+				},
+				switchBg: function() {
+					canvas1.fillBackground = (canvas1.fillBackground) ? false : true;							
+					canvas1.renderAll();
+				},
+				
+				//! insert these functions to the library. No access to _aImages should be done from here
+				showCorners: function() {
+					this.cornersvisible = (this.cornersvisible) ? false : true;
+					for (var i = 0, l = canvas1._aImages.length; i < l; i += 1) {
+						canvas1._aImages[i].setCornersVisibility(this.cornersvisible);
+					}
+					canvas1.renderAll();
+				},
+				toggleNone: function() {
+					for (var i = 0, l = canvas1._aImages.length; i < l; i += 1) {
+						canvas1._aImages[i].setBorderVisibility(false);
+					}
+					canvas1.renderAll();
+				},
+				toggleBorders: function() {
+					for (var i = 0, l = canvas1._aImages.length; i < l; i += 1) {
+						canvas1._aImages[i].setBorderVisibility(true);
+					}
+					canvas1.renderAll();
+				},
+				togglePolaroid: function() {
+					for (var i = 0, l = canvas1._aImages.length; i < l; i += 1) {
+						canvas1._aImages[i].setPolaroidVisibility(true);
+					}
+					canvas1.renderAll();
+				},
+				convertTo: function(format) {
+					var imgData = canvas1.canvasTo(format);
+					window.open(imgData, "_blank");
+				},
+				whatever: function(e, o) {
+					// console.log(e);
+					// console.log(o);
+				}
+			}
+		}();
+		
+		
+		
+		
+		YAHOO.util.Event.on(window, 'load', CanvasDemo.init, CanvasDemo, true);
+	</script>
+</head>
+<body id="canvasdemo" onLoad="">	
+	<canvas id="canvid1"></canvas>
+	
+	<img id="img4" src="canvas_files/4.jpg" />
+	<img id="img1" src="canvas_files/7.jpg" />
+	<img id="img2" src="canvas_files/8.jpg" />
+	<img id="img3" src="canvas_files/9.jpg" />
+	<img id="img4" src="canvas_files/5.jpg" />
+	<img id="bg" src="canvas_files/bg.jpg" />
+	
+	<div id="ft">
+		<h1>demo可以fork，本人会不断更新，优化。如果觉得不错，给我star一下哦。</h1>
+		<br>
+		<div class="fieldset">
+			<input type="button" id="jpegbutton" value="Export to JPEG" />
+			<input type="button" id="pngbutton" value="Export to PNG (heavy)" />
+		</div>
+		<fieldset>
+			<legend>Photo</legend>
+			<span><input type="radio" name="some_name" value="" id="togglenone" /> None</span>
+			<span><input type="radio" name="some_name" value="" id="toggleborders" /> Border</span>
+			<span><input type="radio" name="some_name" value="" id="togglepolaroid" /> Polaroid</span>
+		</fieldset>
+		<span><input type="checkbox" name="some_name" value="" id="showcorners" /> 显示角落<span>
+	</div>
+	<br>
+</body>
+</html>
+
